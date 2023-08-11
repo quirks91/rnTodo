@@ -1,7 +1,17 @@
-import { SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView, StatusBar, StyleSheet, Text, View, FlatList } from "react-native";
 import React from "react";
+import InputForm from "../components/InputForm";
+import TodoItem from "../components/TodoItem";
 
+import { useSelector } from "react-redux";
+
+// ScrollView 는 Components load 후 모든 데이터를 Ram 에 저장해 성능 저하로 수백, 수천개의 항목을 사용할 수 없게된다.
+// FlatList
 const MainScreen = () => {
+  const todos = useSelector((state) => state.todo.todos);
+  const todoTasks = todos.filter((item) => item.state === "todo");
+  const completedTasks = todos.filter((item) => item.state === "done");
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar />
@@ -9,13 +19,33 @@ const MainScreen = () => {
 
       <View style={styles.listView}>
         <Text style={styles.listTitle}>할 일</Text>
+        {todoTasks.length !== 0 ? (
+          <FlatList
+            data={todoTasks}
+            renderItem={({ item }) => <TodoItem {...item} />}
+            keyExtractor={(item) => item.id}
+          />
+        ) : (
+          <Text style={styles.emptyListText}>할 일이 없습니다.</Text>
+        )}
       </View>
 
       <View style={styles.seperator} />
 
       <View style={styles.listView}>
         <Text style={styles.listTitle}>완료된 일</Text>
+        {completedTasks.length !== 0 ? (
+          <FlatList
+            data={completedTasks}
+            renderItem={({ item }) => <TodoItem {...item} />}
+            keyExtractor={(item) => item.id}
+          />
+        ) : (
+          <Text style={styles.emptyListText}>할 일이 없습니다.</Text>
+        )}
       </View>
+
+      <InputForm />
     </SafeAreaView>
   );
 };
@@ -25,20 +55,20 @@ export default MainScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f7f8fa'
+    backgroundColor: "#f7f8fa",
   },
   pageTitle: {
     marginBottom: 35,
     paddingHorizontal: 15,
     fontSize: 46,
-    fontWeight: '600'
+    fontWeight: "600",
   },
   seperator: {
     marginHorizontal: 10,
     marginTop: 25,
     marginBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.2)'
+    borderBottomColor: "rgba(0,0,0,0.2)",
   },
   listView: {
     flex: 1,
@@ -47,6 +77,14 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     paddingHorizontal: 15,
     fontSize: 32,
-    fontWeight: '500'
-  }
+    fontWeight: "500",
+  },
+  emptyListText: {
+    paddingTop: 10,
+    paddingBottom: 15,
+    paddingHorizontal: 15,
+    fontSize: 15,
+    lineHeight: 20,
+    color: '#737373'    
+  },
 });
